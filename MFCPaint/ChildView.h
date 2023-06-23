@@ -4,8 +4,8 @@
 
 
 #pragma once
-
-
+#include <vector>
+#include "CMyShape.h"
 // CChildView 창
 
 class CChildView : public CWnd
@@ -16,7 +16,9 @@ public:
 
 // 특성입니다.
 public:
-
+	int width, height, mode;
+	bool mouseDown;
+	std::vector<CMyShape*> shapes;
 // 작업입니다.
 public:
 
@@ -32,5 +34,12 @@ public:
 protected:
 	afx_msg void OnPaint();
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg void OnDrawRectangle();
+	afx_msg void OnUpdateDrawRectangle(CCmdUI* pCmdUI);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 };
 

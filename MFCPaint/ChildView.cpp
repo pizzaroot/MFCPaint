@@ -6,6 +6,8 @@
 #include "framework.h"
 #include "MFCPaint.h"
 #include "ChildView.h"
+#include "CMyShape.h"
+#include "CMyRect.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -16,6 +18,7 @@
 
 CChildView::CChildView()
 {
+	mode = 1; mouseDown = false;
 }
 
 CChildView::~CChildView()
@@ -25,6 +28,12 @@ CChildView::~CChildView()
 
 BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_WM_PAINT()
+	ON_WM_ERASEBKGND()
+	ON_COMMAND(ID_DRAW_RECTANGLE, &CChildView::OnDrawRectangle)
+	ON_UPDATE_COMMAND_UI(ID_DRAW_RECTANGLE, &CChildView::OnUpdateDrawRectangle)
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
 
@@ -48,8 +57,91 @@ void CChildView::OnPaint()
 {
 	CPaintDC dc(this); // 그리기를 위한 디바이스 컨텍스트입니다.
 	
-	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
-	
-	// 그리기 메시지에 대해서는 CWnd::OnPaint()를 호출하지 마십시오.
+	CRect rect;
+	GetClientRect(&rect);
+	CDC memDC;
+	memDC.CreateCompatibleDC(&dc);
+	CBitmap bitmap;
+	width = rect.Width(), height = rect.Height();
+	bitmap.CreateCompatibleBitmap(&dc, width, height);
+	memDC.SelectObject(&bitmap);
+
+	memDC.SelectStockObject(WHITE_PEN);
+	memDC.Rectangle(0, 0, width, height);
+
+	for (auto& shape : shapes) {
+		shape->draw(memDC);
+	}
+
+	dc.BitBlt(0, 0, width, height, &memDC, 0, 0, SRCCOPY);
 }
 
+
+
+BOOL CChildView::OnEraseBkgnd(CDC* pDC)
+{
+	return TRUE;
+}
+
+
+void CChildView::OnDrawRectangle()
+{
+	mode = 1;
+}
+
+
+void CChildView::OnUpdateDrawRectangle(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(mode == 1);
+}
+
+
+void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	CWnd::OnLButtonDown(nFlags, point);
+	CMyShape* p = NULL;
+	switch (mode) {
+	case 1:
+		p = new CMyRect();
+		break;
+	}
+	if (p) {
+		p->mouseDown(point);
+		shapes.push_back(p);
+	}
+	mouseDown = true;
+	SetCapture();
+	Invalidate();
+}
+
+
+void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	switch (mode) {
+	case 1:
+		shapes.back()->mouseUp(point);
+		break;
+	}
+	mouseDown = false;
+	ReleaseCapture();
+	Invalidate();
+	CWnd::OnLButtonUp(nFlags, point);
+}
+
+
+void CChildView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	switch (mode) {
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+		if (mouseDown) {
+			shapes.back()->mouseUp(point);
+		}
+		break;
+	}
+	Invalidate();
+
+	CWnd::OnMouseMove(nFlags, point);
+}
