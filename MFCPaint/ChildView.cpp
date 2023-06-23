@@ -8,6 +8,7 @@
 #include "ChildView.h"
 #include "CMyShape.h"
 #include "CMyRect.h"
+#include "CMyCircle.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -34,6 +35,8 @@ BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
+	ON_COMMAND(ID_DRAW_CIRCLE, &CChildView::OnDrawCircle)
+	ON_UPDATE_COMMAND_UI(ID_DRAW_CIRCLE, &CChildView::OnUpdateDrawCircle)
 END_MESSAGE_MAP()
 
 
@@ -104,6 +107,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	case 1:
 		p = new CMyRect();
 		break;
+	case 2:
+		p = new CMyCircle();
+		break;
 	}
 	if (p) {
 		p->mouseDown(point);
@@ -144,4 +150,16 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 	Invalidate();
 
 	CWnd::OnMouseMove(nFlags, point);
+}
+
+
+void CChildView::OnDrawCircle()
+{
+	mode = 2;
+}
+
+
+void CChildView::OnUpdateDrawCircle(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(mode == 2);
 }

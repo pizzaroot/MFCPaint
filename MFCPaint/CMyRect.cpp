@@ -3,7 +3,7 @@
 
 void CMyRect::draw(CDC& pDC)
 {
-	CPen pen(PS_SOLID, 5, color);
+	CPen pen(PS_SOLID, lineWidth, color);
 	COLORREF nextColor = RGB(
 		GetRValue(color) + 50,
 		GetGValue(color) + 50,
