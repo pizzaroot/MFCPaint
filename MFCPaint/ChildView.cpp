@@ -16,9 +16,6 @@
 #define new DEBUG_NEW
 #endif
 
-
-// CChildView
-
 CChildView::CChildView()
 {
 	mode = 1; mouseDown = false;
@@ -27,6 +24,12 @@ CChildView::CChildView()
 
 CChildView::~CChildView()
 {
+}
+
+void CChildView::unselectAll()
+{
+	for (auto& shape : shapes) shape->isSelected = false;
+	Invalidate();
 }
 
 
@@ -124,6 +127,7 @@ BOOL CChildView::OnEraseBkgnd(CDC* pDC)
 
 void CChildView::OnDrawRectangle()
 {
+	unselectAll();
 	mode = 1;
 }
 
@@ -153,9 +157,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		break;
 	case 5:
 		start = point; end = point;
-		if (!(nFlags & MK_SHIFT)) {
-			for (auto& shape : shapes) shape->isSelected = false;
-		}
+		if (!(nFlags & MK_SHIFT)) unselectAll();
 		isSingleSelect = false;
 		for (std::list<CMyShape*>::reverse_iterator iter = shapes.rbegin(); iter != shapes.rend(); iter++) {
 			if ((*iter)->isInside(point)) {
@@ -229,6 +231,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 
 void CChildView::OnDrawCircle()
 {
+	unselectAll();
 	mode = 2;
 }
 
@@ -241,6 +244,7 @@ void CChildView::OnUpdateDrawCircle(CCmdUI* pCmdUI)
 
 void CChildView::OnDrawCurve()
 {
+	unselectAll();
 	mode = 3;
 }
 
@@ -253,6 +257,7 @@ void CChildView::OnUpdateDrawCurve(CCmdUI* pCmdUI)
 
 void CChildView::OnDrawStar()
 {
+	unselectAll();
 	mode = 4;
 }
 
