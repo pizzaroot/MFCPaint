@@ -26,10 +26,10 @@ CChildView::~CChildView()
 {
 }
 
-void CChildView::unselectAll()
+void CChildView::unselectAll(bool redraw)
 {
 	for (auto& shape : shapes) shape->isSelected = false;
-	Invalidate();
+	if (redraw) Invalidate();
 }
 
 
@@ -157,7 +157,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		break;
 	case 5:
 		start = point; end = point;
-		if (!(nFlags & MK_SHIFT)) unselectAll();
+		if (!(nFlags & MK_SHIFT)) unselectAll(false);
 		isSingleSelect = false;
 		for (std::list<CMyShape*>::reverse_iterator iter = shapes.rbegin(); iter != shapes.rend(); iter++) {
 			if ((*iter)->isInside(point)) {
