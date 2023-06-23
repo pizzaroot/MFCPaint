@@ -185,8 +185,10 @@
   <ItemGroup>
     <ClInclude Include="ChildView.h" />
     <ClInclude Include="CMyCircle.h" />
+    <ClInclude Include="CMyCurve.h" />
     <ClInclude Include="CMyRect.h" />
     <ClInclude Include="CMyShape.h" />
+    <ClInclude Include="CMyStar.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MFCPaint.h" />
@@ -197,8 +199,10 @@
   <ItemGroup>
     <ClCompile Include="ChildView.cpp" />
     <ClCompile Include="CMyCircle.cpp" />
+    <ClCompile Include="CMyCurve.cpp" />
     <ClCompile Include="CMyRect.cpp" />
     <ClCompile Include="CMyShape.cpp" />
+    <ClCompile Include="CMyStar.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MFCPaint.cpp" />
     <ClCompile Include="pch.cpp">

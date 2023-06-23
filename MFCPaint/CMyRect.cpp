@@ -19,10 +19,21 @@ void CMyRect::draw(CDC& pDC)
 
 void CMyRect::mouseDown(CPoint& pt)
 {
+	topLeft = pt; bottomRight = pt;
 	start = pt; end = pt;
 }
 
 void CMyRect::mouseUp(CPoint& pt)
 {
 	end = pt;
+	topLeft.x = min(start.x, end.x);
+	topLeft.y = min(start.y, end.y);
+	bottomRight.x = max(start.x, end.x);
+	bottomRight.y = max(start.y, end.y);
+}
+
+bool CMyRect::isInside(CPoint& pt)
+{
+	return topLeft.x <= pt.x && topLeft.y <= pt.y
+		&& bottomRight.x >= pt.x && bottomRight.y >= pt.y;
 }

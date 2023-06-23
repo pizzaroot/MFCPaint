@@ -4,7 +4,7 @@
 
 
 #pragma once
-#include <vector>
+#include <list>
 #include "CMyShape.h"
 // CChildView 창
 
@@ -17,8 +17,9 @@ public:
 // 특성입니다.
 public:
 	int width, height, mode;
-	bool mouseDown;
-	std::vector<CMyShape*> shapes;
+	bool mouseDown, isSingleSelect;
+	std::list<CMyShape*> shapes;
+	CPoint start, end;
 // 작업입니다.
 public:
 
@@ -43,5 +44,15 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnDrawCircle();
 	afx_msg void OnUpdateDrawCircle(CCmdUI* pCmdUI);
+	afx_msg void OnDrawCurve();
+	afx_msg void OnUpdateDrawCurve(CCmdUI* pCmdUI);
+	afx_msg void OnDrawStar();
+	afx_msg void OnUpdateDrawStar(CCmdUI* pCmdUI);
+	afx_msg void OnActionSelect();
+	afx_msg void OnUpdateActionSelect(CCmdUI* pCmdUI);
+	afx_msg void OnDeleteShape();
+	afx_msg void OnAlignBringback();
+	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
+	afx_msg void OnAlignBringfront();
 };
 

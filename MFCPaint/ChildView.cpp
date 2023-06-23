@@ -9,6 +9,8 @@
 #include "CMyShape.h"
 #include "CMyRect.h"
 #include "CMyCircle.h"
+#include "CMyCurve.h"
+#include "CMyStar.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -20,6 +22,7 @@
 CChildView::CChildView()
 {
 	mode = 1; mouseDown = false;
+	isSingleSelect = false;
 }
 
 CChildView::~CChildView()
@@ -37,6 +40,16 @@ BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_WM_MOUSEMOVE()
 	ON_COMMAND(ID_DRAW_CIRCLE, &CChildView::OnDrawCircle)
 	ON_UPDATE_COMMAND_UI(ID_DRAW_CIRCLE, &CChildView::OnUpdateDrawCircle)
+	ON_COMMAND(ID_DRAW_CURVE, &CChildView::OnDrawCurve)
+	ON_UPDATE_COMMAND_UI(ID_DRAW_CURVE, &CChildView::OnUpdateDrawCurve)
+	ON_COMMAND(ID_DRAW_STAR, &CChildView::OnDrawStar)
+	ON_UPDATE_COMMAND_UI(ID_DRAW_STAR, &CChildView::OnUpdateDrawStar)
+	ON_COMMAND(ID_ACTION_SELECT, &CChildView::OnActionSelect)
+	ON_UPDATE_COMMAND_UI(ID_ACTION_SELECT, &CChildView::OnUpdateActionSelect)
+	ON_COMMAND(ID_DELETE_SHAPE, &CChildView::OnDeleteShape)
+	ON_COMMAND(ID_ALIGN_BRINGBACK, &CChildView::OnAlignBringback)
+	ON_WM_CONTEXTMENU()
+	ON_COMMAND(ID_ALIGN_BRINGFRONT, &CChildView::OnAlignBringfront)
 END_MESSAGE_MAP()
 
 
@@ -58,7 +71,7 @@ BOOL CChildView::PreCreateWindow(CREATESTRUCT& cs)
 
 void CChildView::OnPaint() 
 {
-	CPaintDC dc(this); // 그리기를 위한 디바이스 컨텍스트입니다.
+	CPaintDC dc(this);
 	
 	CRect rect;
 	GetClientRect(&rect);
@@ -72,9 +85,31 @@ void CChildView::OnPaint()
 	memDC.SelectStockObject(WHITE_PEN);
 	memDC.Rectangle(0, 0, width, height);
 
+	int selectedCnt = 0;
 	for (auto& shape : shapes) {
 		shape->draw(memDC);
+		if (shape->isSelected) {
+			memDC.SelectStockObject(NULL_BRUSH);
+			CPen selectPen(PS_DOT, 1, RGB(255, 0, 0));
+			memDC.SelectObject(&selectPen);
+			memDC.Rectangle(shape->topLeft.x - 5, shape->topLeft.y - 5, shape->bottomRight.x + 5, shape->bottomRight.y + 5);
+			selectedCnt++;
+		}
+		
 	}
+
+	if (mode == 5 && mouseDown && !isSingleSelect) {
+		memDC.SelectStockObject(NULL_BRUSH);
+		CPen selectPen(PS_DOT, 1, RGB(0, 0, 0));
+		memDC.SelectObject(&selectPen);
+		memDC.Rectangle(start.x, start.y, end.x, end.y);
+	}
+
+	CString info; info.Format(_T("Number of Shapes: %d"), (int)shapes.size());
+	CString info2; info2.Format(_T("Number of Selected: %d"), selectedCnt);
+
+	memDC.TextOut(0, 0, info);
+	memDC.TextOut(0, 20, info2);
 
 	dc.BitBlt(0, 0, width, height, &memDC, 0, 0, SRCCOPY);
 }
@@ -110,6 +145,26 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	case 2:
 		p = new CMyCircle();
 		break;
+	case 3:
+		p = new CMyCurve();
+		break;
+	case 4:
+		p = new CMyStar();
+		break;
+	case 5:
+		start = point; end = point;
+		if (!(nFlags & MK_SHIFT)) {
+			for (auto& shape : shapes) shape->isSelected = false;
+		}
+		isSingleSelect = false;
+		for (std::list<CMyShape*>::reverse_iterator iter = shapes.rbegin(); iter != shapes.rend(); iter++) {
+			if ((*iter)->isInside(point)) {
+				(*iter)->isSelected = true;
+				isSingleSelect = true;
+				break;
+			}
+		}
+
 	}
 	if (p) {
 		p->mouseDown(point);
@@ -125,7 +180,23 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	switch (mode) {
 	case 1:
+	case 2:
+	case 3:
+	case 4:
 		shapes.back()->mouseUp(point);
+		break;
+	case 5:
+		if (!isSingleSelect) {
+			end = point;
+			for (auto& shape : shapes) {
+				if (min(start.x, end.x) <= shape->topLeft.x
+					&& min(start.y, end.y) <= shape->topLeft.y
+					&& max(start.x, end.x) >= shape->bottomRight.x
+					&& max(start.y, end.y) >= shape->bottomRight.y) {
+					shape->isSelected = true;
+				}
+			}
+		}
 		break;
 	}
 	mouseDown = false;
@@ -146,6 +217,9 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			shapes.back()->mouseUp(point);
 		}
 		break;
+	case 5:
+		if (!isSingleSelect) end = point;
+		break;
 	}
 	Invalidate();
 
@@ -162,4 +236,90 @@ void CChildView::OnDrawCircle()
 void CChildView::OnUpdateDrawCircle(CCmdUI* pCmdUI)
 {
 	pCmdUI->SetCheck(mode == 2);
+}
+
+
+void CChildView::OnDrawCurve()
+{
+	mode = 3;
+}
+
+
+void CChildView::OnUpdateDrawCurve(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(mode == 3);
+}
+
+
+void CChildView::OnDrawStar()
+{
+	mode = 4;
+}
+
+
+void CChildView::OnUpdateDrawStar(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(mode == 4);
+}
+
+
+void CChildView::OnActionSelect()
+{
+	mode = 5;
+}
+
+
+void CChildView::OnUpdateActionSelect(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(mode == 5);
+}
+
+
+void CChildView::OnDeleteShape()
+{
+	for (std::list<CMyShape*>::iterator iter = shapes.begin(); iter != shapes.end();) {
+		if ((*iter)->isSelected) {
+			delete* iter;
+			shapes.erase(iter++);
+		}
+		else iter++;
+	}
+	Invalidate();
+}
+
+
+void CChildView::OnAlignBringback()
+{
+	std::list<CMyShape*> tmpShapes;
+	for (std::list<CMyShape*>::reverse_iterator iter = shapes.rbegin(); iter != shapes.rend();) {
+		if ((*iter)->isSelected) {
+			tmpShapes.push_back(*iter);
+			shapes.erase(--iter.base());
+		}
+		else iter++;
+	}
+	for (auto& s : tmpShapes) shapes.push_front(s);
+	Invalidate();
+}
+
+
+void CChildView::OnContextMenu(CWnd* pWnd, CPoint point)
+{
+	CMenu* pMenu = AfxGetMainWnd()->GetMenu()->GetSubMenu(4);
+	pMenu->TrackPopupMenu(TPM_LEFTALIGN | TPM_LEFTBUTTON, point.x, point.y, AfxGetMainWnd());
+}
+
+
+void CChildView::OnAlignBringfront()
+{
+	std::list<CMyShape*> tmpShapes;
+	for (std::list<CMyShape*>::iterator iter = shapes.begin(); iter != shapes.end();) {
+		if ((*iter)->isSelected) {
+			tmpShapes.push_back(*iter);
+			shapes.erase(iter++);
+		}
+		else iter++;
+	}
+	for (auto& s : tmpShapes) shapes.push_back(s);
+	Invalidate();
 }

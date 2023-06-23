@@ -18,10 +18,21 @@ void CMyCircle::draw(CDC& pDC)
 
 void CMyCircle::mouseDown(CPoint& pt)
 {
+	topLeft = pt;
+	bottomRight = pt;
 	center = pt;
 }
 
 void CMyCircle::mouseUp(CPoint& pt)
 {
 	radius = distance(center, pt);
+	topLeft.x = center.x - radius;
+	topLeft.y = center.y - radius;
+	bottomRight.x = center.x + radius;
+	bottomRight.y = center.y + radius;
+}
+
+bool CMyCircle::isInside(CPoint& pt)
+{
+	return distance(center, pt) <= radius;
 }

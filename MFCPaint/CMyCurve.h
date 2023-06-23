@@ -1,10 +1,10 @@
 #pragma once
 #include "CMyShape.h"
-class CMyCircle :
+#include <vector>
+class CMyCurve :
     public CMyShape
 {
-	CPoint center;
-	int radius;
+    std::vector<CPoint> pts;
 	virtual void draw(CDC& pDC);
 	virtual void mouseDown(CPoint& pt);
 	virtual void mouseUp(CPoint& pt);

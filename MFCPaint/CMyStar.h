@@ -1,9 +1,9 @@
 #pragma once
 #include "CMyShape.h"
-class CMyCircle :
+class CMyStar :
     public CMyShape
 {
-	CPoint center;
+	CPoint center, pts[10];
 	int radius;
 	virtual void draw(CDC& pDC);
 	virtual void mouseDown(CPoint& pt);
