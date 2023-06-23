@@ -188,7 +188,15 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		shapes.back()->mouseUp(point);
 		break;
 	case 5:
-		if (!isSingleSelect) {
+		if (isSingleSelect) {
+			end = point;
+			for (auto& shape : shapes) {
+				if (shape->isSelected) {
+					shape->moveVector(start, end);
+				}
+			}
+			isSingleSelect = false;
+		} else {
 			end = point;
 			for (auto& shape : shapes) {
 				if (min(start.x, end.x) <= shape->topLeft.x
@@ -220,7 +228,16 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		}
 		break;
 	case 5:
-		if (!isSingleSelect) end = point;
+		if (isSingleSelect) {
+			end = point;
+			for (auto& shape : shapes) {
+				if (shape->isSelected) {
+					shape->moveVector(start, end);
+				}
+			}
+			start = point;
+		}
+		else end = point;
 		break;
 	}
 	Invalidate();

@@ -53,3 +53,12 @@ bool CMyCurve::isInside(CPoint& pt)
 	}
 	return false;
 }
+
+void CMyCurve::moveVector(CPoint& before, CPoint& after)
+{
+	for (auto& p : pts) {
+		p.x += after.x - before.x;
+		p.y += after.y - before.y;
+	}
+	moveFrame(before, after);
+}

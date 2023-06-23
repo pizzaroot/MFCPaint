@@ -51,3 +51,10 @@ bool CMyStar::isInside(CPoint& pt)
 	}
 	return intersectCnt % 2 == 1;
 }
+
+void CMyStar::moveVector(CPoint& before, CPoint& after)
+{
+	center.x += after.x - before.x;
+	center.y += after.y - before.y;
+	moveFrame(before, after);
+}

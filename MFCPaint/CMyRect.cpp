@@ -37,3 +37,12 @@ bool CMyRect::isInside(CPoint& pt)
 	return topLeft.x <= pt.x && topLeft.y <= pt.y
 		&& bottomRight.x >= pt.x && bottomRight.y >= pt.y;
 }
+
+void CMyRect::moveVector(CPoint& before, CPoint& after)
+{
+	start.x += after.x - before.x;
+	start.y += after.y - before.y;
+	end.x += after.x - before.x;
+	end.y += after.y - before.y;
+	moveFrame(before, after);
+}

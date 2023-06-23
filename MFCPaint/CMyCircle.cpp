@@ -36,3 +36,10 @@ bool CMyCircle::isInside(CPoint& pt)
 {
 	return distance(center, pt) <= radius;
 }
+
+void CMyCircle::moveVector(CPoint& before, CPoint& after)
+{
+	center.x += after.x - before.x;
+	center.y += after.y - before.y;
+	moveFrame(before, after);
+}
