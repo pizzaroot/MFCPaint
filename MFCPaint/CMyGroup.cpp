@@ -8,6 +8,12 @@ CMyGroup::CMyGroup()
 	resetFrame();
 }
 
+CMyGroup::~CMyGroup()
+{
+	for (auto& g : children) delete g;
+	delete shape;
+}
+
 void CMyGroup::draw(CDC& pDC)
 {
 	if (shape) {

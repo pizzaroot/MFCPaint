@@ -5,6 +5,7 @@ class CMyGroup : public CMyShape
 {
 public:
 	CMyGroup();
+	~CMyGroup();
 	CMyShape* shape;
 	std::list<CMyGroup*> children;
 	void draw(CDC& pDC);

@@ -26,7 +26,7 @@ CChildView::CChildView()
 
 CChildView::~CChildView()
 {
-	// deallocate 추가
+	delete shapes;
 }
 
 void CChildView::unselectAll(bool redraw)
@@ -320,7 +320,7 @@ void CChildView::OnDeleteShape()
 	for (std::list<CMyGroup*>::iterator iter = shapes->children.begin(); iter != shapes->children.end();) {
 		if ((*iter)->isSelected) {
 			delete* iter;
-			shapes->children.erase(iter++);
+			shapes->erase(iter++);
 		}
 		else iter++;
 	}
@@ -407,6 +407,8 @@ void CChildView::OnActionUngroup()
 			for (auto& child : (*iter)->children) {
 				tmpShapes.push_back(child);
 			}
+			(*iter)->children.clear();
+			delete *iter;
 			shapes->erase(iter++);
 		}
 		else iter++;
