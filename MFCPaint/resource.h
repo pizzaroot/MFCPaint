@@ -19,7 +19,6 @@
 #define ID_ACTION_GROUP                 32783
 #define ID_ACTION_UNGROUP               32784
 #define ID_SELECT_ALL                   32785
-#define ID_ACCELERATOR32786             32786
 
 // Next default values for new objects
 // 
