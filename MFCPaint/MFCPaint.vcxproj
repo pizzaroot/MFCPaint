@@ -186,6 +186,7 @@
     <ClInclude Include="ChildView.h" />
     <ClInclude Include="CMyCircle.h" />
     <ClInclude Include="CMyCurve.h" />
+    <ClInclude Include="CMyGroup.h" />
     <ClInclude Include="CMyRect.h" />
     <ClInclude Include="CMyShape.h" />
     <ClInclude Include="CMyStar.h" />
@@ -200,6 +201,7 @@
     <ClCompile Include="ChildView.cpp" />
     <ClCompile Include="CMyCircle.cpp" />
     <ClCompile Include="CMyCurve.cpp" />
+    <ClCompile Include="CMyGroup.cpp" />
     <ClCompile Include="CMyRect.cpp" />
     <ClCompile Include="CMyShape.cpp" />
     <ClCompile Include="CMyStar.cpp" />

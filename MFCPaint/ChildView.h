@@ -5,7 +5,7 @@
 
 #pragma once
 #include <list>
-#include "CMyShape.h"
+#include "CMyGroup.h"
 // CChildView 창
 
 class CChildView : public CWnd
@@ -16,9 +16,9 @@ public:
 
 // 특성입니다.
 public:
-	int width, height, mode;
+	int width, height, mode, curSelectedCnt;
 	bool mouseDown, isSingleSelect;
-	std::list<CMyShape*> shapes;
+	CMyGroup *shapes;
 	CPoint start, end;
 // 작업입니다.
 public:
@@ -57,5 +57,9 @@ public:
 	afx_msg void OnAlignBringfront();
 	afx_msg void OnUpdateAlignBringback(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateAlignBringfront(CCmdUI* pCmdUI);
+	afx_msg void OnActionGroup();
+	afx_msg void OnUpdateActionGroup(CCmdUI* pCmdUI);
+	afx_msg void OnActionUngroup();
+	afx_msg void OnUpdateActionUngroup(CCmdUI* pCmdUI);
 };
 

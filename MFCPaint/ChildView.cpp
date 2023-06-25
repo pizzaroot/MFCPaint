@@ -20,22 +20,25 @@ CChildView::CChildView()
 {
 	mode = 1; mouseDown = false;
 	isSingleSelect = false;
+	curSelectedCnt = 0;
+	shapes = new CMyGroup();
 }
 
 CChildView::~CChildView()
 {
+	// deallocate 추가
 }
 
 void CChildView::unselectAll(bool redraw)
 {
-	for (auto& shape : shapes) shape->isSelected = false;
+	for (auto& shape : shapes->children) shape->isSelected = false;
 	if (redraw) Invalidate();
 }
 
 void CChildView::updateAlignUI(CCmdUI* pCmdUI)
 {
 	int selectedCnt = 0;
-	for (auto& shape : shapes) selectedCnt += shape->isSelected;
+	for (auto& shape : shapes->children) selectedCnt += shape->isSelected;
 	pCmdUI->Enable(selectedCnt);
 }
 
@@ -62,6 +65,10 @@ BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_COMMAND(ID_ALIGN_BRINGFRONT, &CChildView::OnAlignBringfront)
 	ON_UPDATE_COMMAND_UI(ID_ALIGN_BRINGBACK, &CChildView::OnUpdateAlignBringback)
 	ON_UPDATE_COMMAND_UI(ID_ALIGN_BRINGFRONT, &CChildView::OnUpdateAlignBringfront)
+	ON_COMMAND(ID_ACTION_GROUP, &CChildView::OnActionGroup)
+	ON_UPDATE_COMMAND_UI(ID_ACTION_GROUP, &CChildView::OnUpdateActionGroup)
+	ON_COMMAND(ID_ACTION_UNGROUP, &CChildView::OnActionUngroup)
+	ON_UPDATE_COMMAND_UI(ID_ACTION_UNGROUP, &CChildView::OnUpdateActionUngroup)
 END_MESSAGE_MAP()
 
 
@@ -98,7 +105,7 @@ void CChildView::OnPaint()
 	memDC.Rectangle(0, 0, width, height);
 
 	int selectedCnt = 0;
-	for (auto& shape : shapes) {
+	for (auto& shape : shapes->children) {
 		shape->draw(memDC);
 		if (shape->isSelected) {
 			memDC.SelectStockObject(NULL_BRUSH);
@@ -110,6 +117,8 @@ void CChildView::OnPaint()
 		
 	}
 
+	curSelectedCnt = selectedCnt;
+
 	if (mode == 5 && mouseDown && !isSingleSelect) {
 		memDC.SelectStockObject(NULL_BRUSH);
 		CPen selectPen(PS_DOT, 1, RGB(0, 0, 0));
@@ -117,7 +126,7 @@ void CChildView::OnPaint()
 		memDC.Rectangle(start.x, start.y, end.x, end.y);
 	}
 
-	CString info; info.Format(_T("Number of Shapes: %d"), (int)shapes.size());
+	CString info; info.Format(_T("Number of Shapes: %d"), (int)shapes->children.size());
 	CString info2; info2.Format(_T("Number of Selected: %d"), selectedCnt);
 
 	memDC.TextOut(0, 0, info);
@@ -150,25 +159,25 @@ void CChildView::OnUpdateDrawRectangle(CCmdUI* pCmdUI)
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	CWnd::OnLButtonDown(nFlags, point);
-	CMyShape* p = NULL;
+	CMyGroup* p = new CMyGroup();
 	switch (mode) {
 	case 1:
-		p = new CMyRect();
+		p->setShape(new CMyRect());
 		break;
 	case 2:
-		p = new CMyCircle();
+		p->setShape(new CMyCircle());
 		break;
 	case 3:
-		p = new CMyCurve();
+		p->setShape(new CMyCurve());
 		break;
 	case 4:
-		p = new CMyStar();
+		p->setShape(new CMyStar());
 		break;
 	case 5:
 		start = point; end = point;
 		if (!(nFlags & MK_SHIFT)) unselectAll(false);
 		isSingleSelect = false;
-		for (std::list<CMyShape*>::reverse_iterator iter = shapes.rbegin(); iter != shapes.rend(); iter++) {
+		for (std::list<CMyGroup*>::reverse_iterator iter = shapes->children.rbegin(); iter != shapes->children.rend(); iter++) {
 			if ((*iter)->isInside(point)) {
 				(*iter)->isSelected = true;
 				isSingleSelect = true;
@@ -177,9 +186,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		}
 
 	}
-	if (p) {
+	if (p->shape) {
 		p->mouseDown(point);
-		shapes.push_back(p);
+		shapes->push_back(p);
 	}
 	mouseDown = true;
 	SetCapture();
@@ -194,12 +203,12 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 	case 2:
 	case 3:
 	case 4:
-		shapes.back()->mouseUp(point);
+		shapes->children.back()->mouseUp(point);
 		break;
 	case 5:
 		if (isSingleSelect) {
 			end = point;
-			for (auto& shape : shapes) {
+			for (auto& shape : shapes->children) {
 				if (shape->isSelected) {
 					shape->moveVector(start, end);
 				}
@@ -207,7 +216,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 			isSingleSelect = false;
 		} else {
 			end = point;
-			for (auto& shape : shapes) {
+			for (auto& shape : shapes->children) {
 				if (min(start.x, end.x) <= shape->topLeft.x
 					&& min(start.y, end.y) <= shape->topLeft.y
 					&& max(start.x, end.x) >= shape->bottomRight.x
@@ -233,13 +242,13 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 	case 3:
 	case 4:
 		if (mouseDown) {
-			shapes.back()->mouseUp(point);
+			shapes->children.back()->mouseUp(point);
 		}
 		break;
 	case 5:
 		if (isSingleSelect) {
 			end = point;
-			for (auto& shape : shapes) {
+			for (auto& shape : shapes->children) {
 				if (shape->isSelected) {
 					shape->moveVector(start, end);
 				}
@@ -308,10 +317,10 @@ void CChildView::OnUpdateActionSelect(CCmdUI* pCmdUI)
 
 void CChildView::OnDeleteShape()
 {
-	for (std::list<CMyShape*>::iterator iter = shapes.begin(); iter != shapes.end();) {
+	for (std::list<CMyGroup*>::iterator iter = shapes->children.begin(); iter != shapes->children.end();) {
 		if ((*iter)->isSelected) {
 			delete* iter;
-			shapes.erase(iter++);
+			shapes->children.erase(iter++);
 		}
 		else iter++;
 	}
@@ -321,15 +330,15 @@ void CChildView::OnDeleteShape()
 
 void CChildView::OnAlignBringback()
 {
-	std::list<CMyShape*> tmpShapes;
-	for (std::list<CMyShape*>::reverse_iterator iter = shapes.rbegin(); iter != shapes.rend();) {
+	std::list<CMyGroup*> tmpShapes;
+	for (std::list<CMyGroup*>::reverse_iterator iter = shapes->children.rbegin(); iter != shapes->children.rend();) {
 		if ((*iter)->isSelected) {
 			tmpShapes.push_back(*iter);
-			shapes.erase(--iter.base());
+			shapes->children.erase(--iter.base());
 		}
 		else iter++;
 	}
-	for (auto& s : tmpShapes) shapes.push_front(s);
+	for (auto& s : tmpShapes) shapes->children.push_front(s);
 	Invalidate();
 }
 
@@ -343,15 +352,15 @@ void CChildView::OnContextMenu(CWnd* pWnd, CPoint point)
 
 void CChildView::OnAlignBringfront()
 {
-	std::list<CMyShape*> tmpShapes;
-	for (std::list<CMyShape*>::iterator iter = shapes.begin(); iter != shapes.end();) {
+	std::list<CMyGroup*> tmpShapes;
+	for (std::list<CMyGroup*>::iterator iter = shapes->children.begin(); iter != shapes->children.end();) {
 		if ((*iter)->isSelected) {
 			tmpShapes.push_back(*iter);
-			shapes.erase(iter++);
+			shapes->children.erase(iter++);
 		}
 		else iter++;
 	}
-	for (auto& s : tmpShapes) shapes.push_back(s);
+	for (auto& s : tmpShapes) shapes->push_back(s);
 	Invalidate();
 }
 
@@ -365,4 +374,54 @@ void CChildView::OnUpdateAlignBringback(CCmdUI* pCmdUI)
 void CChildView::OnUpdateAlignBringfront(CCmdUI* pCmdUI)
 {
 	updateAlignUI(pCmdUI);
+}
+
+
+void CChildView::OnActionGroup()
+{
+	if (curSelectedCnt < 2) return;
+	CMyGroup* grouped = new CMyGroup();
+	grouped->isSelected = true;
+	for (std::list<CMyGroup*>::iterator iter = shapes->children.begin(); iter != shapes->children.end();) {
+		if ((*iter)->isSelected) {
+			grouped->push_back(*iter);
+			shapes->erase(iter++);
+		}
+		else iter++;
+	}
+	shapes->push_back(grouped);
+}
+
+
+void CChildView::OnUpdateActionGroup(CCmdUI* pCmdUI)
+{
+	pCmdUI->Enable(curSelectedCnt >= 2);
+}
+
+
+void CChildView::OnActionUngroup()
+{
+	std::list<CMyGroup*> tmpShapes;
+	for (std::list<CMyGroup*>::iterator iter = shapes->children.begin(); iter != shapes->children.end();) {
+		if ((*iter)->isSelected && (*iter)->shape == NULL) {
+			for (auto& child : (*iter)->children) {
+				tmpShapes.push_back(child);
+			}
+			shapes->erase(iter++);
+		}
+		else iter++;
+	}
+	for (auto& g : tmpShapes) {
+		shapes->push_back(g);
+	}
+}
+
+
+void CChildView::OnUpdateActionUngroup(CCmdUI* pCmdUI)
+{
+	bool hasChild = false;
+	for (auto& g : shapes->children) {
+		if (g->isSelected && g->shape == NULL) { hasChild = true; break; }
+	}
+	pCmdUI->Enable(hasChild);
 }
