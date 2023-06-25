@@ -69,6 +69,7 @@ BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_UPDATE_COMMAND_UI(ID_ACTION_GROUP, &CChildView::OnUpdateActionGroup)
 	ON_COMMAND(ID_ACTION_UNGROUP, &CChildView::OnActionUngroup)
 	ON_UPDATE_COMMAND_UI(ID_ACTION_UNGROUP, &CChildView::OnUpdateActionUngroup)
+	ON_COMMAND(ID_SELECT_ALL, &CChildView::OnSelectAll)
 END_MESSAGE_MAP()
 
 
@@ -147,6 +148,7 @@ void CChildView::OnDrawRectangle()
 {
 	unselectAll();
 	mode = 1;
+	mouseDown = false;
 }
 
 
@@ -268,6 +270,7 @@ void CChildView::OnDrawCircle()
 {
 	unselectAll();
 	mode = 2;
+	mouseDown = false;
 }
 
 
@@ -281,6 +284,7 @@ void CChildView::OnDrawCurve()
 {
 	unselectAll();
 	mode = 3;
+	mouseDown = false;
 }
 
 
@@ -294,6 +298,7 @@ void CChildView::OnDrawStar()
 {
 	unselectAll();
 	mode = 4;
+	mouseDown = false;
 }
 
 
@@ -306,6 +311,7 @@ void CChildView::OnUpdateDrawStar(CCmdUI* pCmdUI)
 void CChildView::OnActionSelect()
 {
 	mode = 5;
+	mouseDown = false;
 }
 
 
@@ -428,4 +434,13 @@ void CChildView::OnUpdateActionUngroup(CCmdUI* pCmdUI)
 		if (g->isSelected && g->shape == NULL) { hasChild = true; break; }
 	}
 	pCmdUI->Enable(hasChild);
+}
+
+
+void CChildView::OnSelectAll()
+{
+	if (mouseDown) return;
+	mode = 5;
+	for (auto& g : shapes->children) g->isSelected = true;
+	Invalidate();
 }

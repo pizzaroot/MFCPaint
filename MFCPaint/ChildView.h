@@ -61,5 +61,6 @@ public:
 	afx_msg void OnUpdateActionGroup(CCmdUI* pCmdUI);
 	afx_msg void OnActionUngroup();
 	afx_msg void OnUpdateActionUngroup(CCmdUI* pCmdUI);
+	afx_msg void OnSelectAll();
 };
 
