@@ -53,7 +53,7 @@ public:
 	afx_msg void OnUpdateActionSelect(CCmdUI* pCmdUI);
 	afx_msg void OnDeleteShape();
 	afx_msg void OnAlignBringback();
-	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
+	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnAlignBringfront();
 	afx_msg void OnUpdateAlignBringback(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateAlignBringfront(CCmdUI* pCmdUI);

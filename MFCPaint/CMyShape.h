@@ -29,7 +29,7 @@ public:
 	bool intersect(CPoint& l1s, CPoint& l1e, CPoint& l2s, CPoint& l2e) {
 		int ccw1 = ccw(l1s, l1e, l2s) * ccw(l1s, l1e, l2e);
 		int ccw2 = ccw(l2s, l2e, l1s) * ccw(l2s, l2e, l1e);
-		return (ccw1 < 0) && (ccw2 < 0);
+		return (ccw1 <= 0) && (ccw2 <= 0);
 	}
 };
 

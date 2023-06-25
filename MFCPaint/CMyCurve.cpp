@@ -40,10 +40,10 @@ bool CMyCurve::isInside(CPoint& pt)
 		int newx = pts[i].y - pts[i - 1].y, newy = pts[i - 1].x - pts[i].x;
 		double div = sqrt(newx * newx + newy * newy);
 		if (div <= 1) {
-			if (distance(pts[i], pt) <= 8 || distance(pts[i - 1], pt) <= 8) return true;
+			if (distance(pts[i], pt) <= 5 || distance(pts[i - 1], pt) <= 5) return true;
 		}
 		else {
-			newx = newx * 8 / div; newy = newy * 8 / div;
+			newx = newx * 5 / div; newy = newy * 5 / div;
 			CPoint closeStart(pt.x + newx, pt.y + newy);
 			CPoint closeEnd(pt.x - newx, pt.y - newy);
 			if (intersect(pts[i - 1], pts[i], closeStart, closeEnd)) {
