@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CMyStar.h"
 #define M_PI 3.14159265358979323846
+#define INF 0x3f3f
 
 void CMyStar::draw(CDC& pDC)
 {
@@ -45,7 +46,7 @@ void CMyStar::mouseUp(CPoint& pt)
 bool CMyStar::isInside(CPoint& pt)
 {
 	int intersectCnt = 0;
-	CPoint farAway(pt.x - 2 * radius, pt.y - 2 * radius);
+	CPoint farAway(pt.x + 1, -INF);
 	for (int i = 1; i <= 10; i++) {
 		intersectCnt += intersect(pts[i % 10], pts[i - 1], pt, farAway);
 	}
