@@ -31,7 +31,7 @@ public:
 public:
 	virtual ~CChildView();
 	void unselectAll(bool redraw = true);
-
+	void updateAlignUI(CCmdUI* pCmdUI);
 	// 생성된 메시지 맵 함수
 protected:
 	afx_msg void OnPaint();
@@ -55,5 +55,7 @@ public:
 	afx_msg void OnAlignBringback();
 	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
 	afx_msg void OnAlignBringfront();
+	afx_msg void OnUpdateAlignBringback(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateAlignBringfront(CCmdUI* pCmdUI);
 };
 

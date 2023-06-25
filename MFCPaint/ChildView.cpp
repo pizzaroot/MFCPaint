@@ -32,6 +32,13 @@ void CChildView::unselectAll(bool redraw)
 	if (redraw) Invalidate();
 }
 
+void CChildView::updateAlignUI(CCmdUI* pCmdUI)
+{
+	int selectedCnt = 0;
+	for (auto& shape : shapes) selectedCnt += shape->isSelected;
+	pCmdUI->Enable(selectedCnt);
+}
+
 
 BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_WM_PAINT()
@@ -53,6 +60,8 @@ BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_COMMAND(ID_ALIGN_BRINGBACK, &CChildView::OnAlignBringback)
 	ON_WM_CONTEXTMENU()
 	ON_COMMAND(ID_ALIGN_BRINGFRONT, &CChildView::OnAlignBringfront)
+	ON_UPDATE_COMMAND_UI(ID_ALIGN_BRINGBACK, &CChildView::OnUpdateAlignBringback)
+	ON_UPDATE_COMMAND_UI(ID_ALIGN_BRINGFRONT, &CChildView::OnUpdateAlignBringfront)
 END_MESSAGE_MAP()
 
 
@@ -344,4 +353,16 @@ void CChildView::OnAlignBringfront()
 	}
 	for (auto& s : tmpShapes) shapes.push_back(s);
 	Invalidate();
+}
+
+
+void CChildView::OnUpdateAlignBringback(CCmdUI* pCmdUI)
+{
+	updateAlignUI(pCmdUI);
+}
+
+
+void CChildView::OnUpdateAlignBringfront(CCmdUI* pCmdUI)
+{
+	updateAlignUI(pCmdUI);
 }
