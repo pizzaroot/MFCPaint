@@ -390,6 +390,7 @@ void CChildView::OnActionGroup()
 		else iter++;
 	}
 	shapes->push_back(grouped);
+	Invalidate();
 }
 
 
@@ -416,6 +417,7 @@ void CChildView::OnActionUngroup()
 	for (auto& g : tmpShapes) {
 		shapes->push_back(g);
 	}
+	Invalidate();
 }
 
 
